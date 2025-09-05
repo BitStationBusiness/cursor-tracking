@@ -1,50 +1,77 @@
 # cursor_demo.py
-# DEMO: captura global de clics y muestra coordenadas en consola (ESC para salir).
+# DEMO (Windows): abre una nueva CMD y muestra coordenadas de clics (ESC para salir)
 
-from pynput import mouse, keyboard
+import os
+import sys
+import subprocess
 
-print("Escucha de clics iniciada. Haz clic donde quieras medir.")
-print("Pulsa ESC para salir.\n")
+try:
+    from pynput import mouse, keyboard
+except ImportError:
+    print("Falta 'pynput'. Instálalo con: pip install pynput")
+    sys.exit(1)
 
-# Mantendremos referencias globales para poder detener ambos listeners desde ESC
 m_listener = None
 k_listener = None
 
 def on_click(x, y, button, pressed):
     if pressed:
-        print(f"[CLICK] x={x}  y={y}  button={button}")
+        print(f"[CLICK] x={x}  y={y}  button={button}", flush=True)
 
 def on_press(key):
-    global m_listener, k_listener
-    try:
-        if key == keyboard.Key.esc:
-            print("Saliendo…")
-            # Detiene el listener de mouse; devolver False detiene el de teclado
-            if m_listener is not None:
-                m_listener.stop()
-            return False
-    except Exception:
-        # Si algo falla, detenemos todo por seguridad
+    global m_listener
+    if key == keyboard.Key.esc:
+        print("Saliendo…", flush=True)
         if m_listener is not None:
             m_listener.stop()
-        return False
+        return False  # Detiene el listener de teclado
 
-if __name__ == "__main__":
-    # Iniciar listeners SIN usar 'with' para controlar el ciclo de vida manualmente
+def run_listeners():
+    global m_listener, k_listener
+    print("Escucha de clics iniciada. Haz clic donde quieras medir.", flush=True)
+    print("Pulsa ESC para salir.\n", flush=True)
+
+    # Iniciar listeners manualmente (evita 'threads can only be started once')
     m_listener = mouse.Listener(on_click=on_click)
     k_listener = keyboard.Listener(on_press=on_press)
 
     m_listener.start()
     k_listener.start()
 
-    # Esperar a que se detengan (ESC detiene ambos)
     try:
         m_listener.join()
         k_listener.join()
     except KeyboardInterrupt:
-        # Permite salir con Ctrl+C en consola
         if m_listener is not None:
             m_listener.stop()
         if k_listener is not None:
             k_listener.stop()
-        print("Interrumpido por el usuario.")
+        print("Interrumpido por el usuario.", flush=True)
+
+def main():
+    # Si no somos el proceso hijo, abrimos una NUEVA consola y relanzamos el script con --child
+    if os.name == "nt" and "--child" not in sys.argv:
+        script = os.path.abspath(__file__)
+        python_exe = sys.executable
+        try:
+            # Preferible: nueva consola propia del intérprete
+            subprocess.Popen(
+                [python_exe, script, "--child"],
+                creationflags=subprocess.CREATE_NEW_CONSOLE
+            )
+        except Exception:
+            # Respaldo: abrir cmd y ejecutar python
+            cmd = f'"{python_exe}" "{script}" --child'
+            subprocess.Popen(['cmd', '/k', cmd], shell=False)
+        sys.exit(0)
+
+    # Proceso hijo: ya estamos dentro de la nueva CMD
+    if os.name == "nt":
+        try:
+            os.system('title Cursor Demo - Coordenadas')
+        except Exception:
+            pass
+    run_listeners()
+
+if __name__ == "__main__":
+    main()
