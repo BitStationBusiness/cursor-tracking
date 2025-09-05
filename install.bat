@@ -4,7 +4,7 @@ title BitStation Multimedia Downloader - Installer/Launcher
 cd /d "%~dp0"
 
 REM ===== Config =====
-set "APPNAME=BitStation Multimedia Downloader"
+set "APPNAME=cursor tracker"
 set "ICON=%CD%\ico\ico.ico"
 set "PYEXE=%CD%\venv\Scripts\python.exe"
 set "PYWEXE=%CD%\venv\Scripts\pythonw.exe"
@@ -68,12 +68,11 @@ if /I "%~1"=="--build-exe" (
 
 echo.
 echo Iniciando la aplicacion...
-REM >>> Lanzar CON consola para ver la informacion (python.exe) <<<
-if exist "%PYEXE%" (
-  start "Cursor Tracking - %APPNAME%" "%PYEXE%" "%MAIN%"
-) else (
-  REM Fallback si por alguna razon falta python.exe del venv
+REM >>> Lanzar sin consola y cerrar esta ventana inmediatamente <<<
+if exist "%PYWEXE%" (
   start "" "%PYWEXE%" "%MAIN%"
+) else (
+  REM fallback si pythonw no existe
+  start "" "%PYEXE%" "%MAIN%"
 )
-
 exit /b 0
