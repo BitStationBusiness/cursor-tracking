@@ -5,10 +5,10 @@ cd /d "%~dp0"
 
 REM ===== Config =====
 set "APPNAME=Solicitud Cotizacion Proveedores"
-set "ICON=%CD%\ico\request.ico"
+set "ICON=%CD%\ico\ico.ico"
 set "PYEXE=%CD%\venv\Scripts\python.exe"
 set "PYWEXE=%CD%\venv\Scripts\pythonw.exe"
-set "MAIN=%CD%\main.py"
+set "MAIN=%CD%\cursor-tracking.py"
 
 echo.
 echo [%APPNAME%] Preparando entorno...
