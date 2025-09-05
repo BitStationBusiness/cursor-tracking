@@ -4,7 +4,7 @@ title BitStation Multimedia Downloader - Installer/Launcher
 cd /d "%~dp0"
 
 REM ===== Config =====
-set "APPNAME=Solicitud Cotizacion Proveedores"
+set "APPNAME=cursor-tracking"
 set "ICON=%CD%\ico\ico.ico"
 set "PYEXE=%CD%\venv\Scripts\python.exe"
 set "PYWEXE=%CD%\venv\Scripts\pythonw.exe"
